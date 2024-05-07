@@ -6,6 +6,8 @@ interface IStudentViewModel {
     val infoMessage: State<String>
     val showInfoMessage: State<Boolean>
     val selectedIndex: State<Int>
+    val showEditStudent: State<Boolean>
+    val editStudent: State<String>
 
     fun addStudent()
     fun removeStudent(index: Int)
@@ -16,4 +18,6 @@ interface IStudentViewModel {
     fun newStudentChange(name: String)
     fun studentSelected(index: Int)
     fun showInfoMessage(show: Boolean)
+    fun showEditStudent(show: Boolean)
+    fun confirmEditStudent(editedName:String)
 }
