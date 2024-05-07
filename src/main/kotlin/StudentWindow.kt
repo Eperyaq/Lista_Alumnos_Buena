@@ -293,7 +293,6 @@ fun StudentList(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxSize()
-                        .clickable { onStudentSelected(index) }
                         .combinedClickable(onDoubleClick = { onStudentSelected(index); onEditStudent(index) } ){} //rarete, preguntar a diego
                         .background(if (index == selectedIndex) colorSelected else colorUnselected)
                         .padding(horizontal = 5.dp)
@@ -423,6 +422,17 @@ fun EditStudent(
         onDismissRequest = onCloseEditStudent,
         text = {
             Column { TextField(
+                modifier = Modifier
+                    .onKeyEvent { event ->
+                        controlKeyEnter(
+                        event= event,
+                        onButtonAddNewStudentClick = {
+                            if (newName.isNotBlank() && newName.length <= 10){
+                                viewModel.editStudent(selectedStudent, newName)
+                            }
+                            onCloseEditStudent()
+                        }
+                        ) },
                 value = newName,
                 onValueChange = {newName = it},
                 label = { Text( "Nuevo nombre del estudiante" ) }
