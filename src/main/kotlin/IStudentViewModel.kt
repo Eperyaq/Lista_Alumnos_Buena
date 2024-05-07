@@ -19,5 +19,5 @@ interface IStudentViewModel {
     fun studentSelected(index: Int)
     fun showInfoMessage(show: Boolean)
     fun showEditStudent(show: Boolean)
-    fun confirmEditStudent(editedName:String)
+    fun editStudent(selectedStudent:Int, newName:String)
 }

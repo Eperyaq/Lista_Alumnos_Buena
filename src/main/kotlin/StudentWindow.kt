@@ -164,8 +164,7 @@ fun StudentScreen(
 
         EditStudent(
             onCloseEditStudent = { viewModel.showEditStudent(false) },
-            editStudent = editStudent,
-            onStudentEdit = { name -> viewModel.newStudentChange(name)},
+            selectedStudent = selectedIndex,
             viewModel = viewModel
         )
     }
@@ -295,7 +294,7 @@ fun StudentList(
                     modifier = Modifier
                         .fillMaxSize()
                         .clickable { onStudentSelected(index) }
-                        .combinedClickable(onDoubleClick = { onEditStudent(index) } ){} //rarete, preguntar a diego
+                        .combinedClickable(onDoubleClick = { onStudentSelected(index); onEditStudent(index) } ){} //rarete, preguntar a diego
                         .background(if (index == selectedIndex) colorSelected else colorUnselected)
                         .padding(horizontal = 5.dp)
                 ) {
@@ -412,26 +411,31 @@ fun InfoMessage(message: String, onCloseInfoMessage: () -> Unit) {
 
 
 @Composable
-fun EditStudent(onCloseEditStudent: () -> Unit,
-                editStudent: String,
-                onStudentEdit: (String) -> Unit,
-                viewModel: IStudentViewModel
+fun EditStudent(
+    selectedStudent: Int,
+    onCloseEditStudent: () -> Unit,
+    viewModel:IStudentViewModel
 ){
-    var editedStudentName by remember { mutableStateOf(editStudent) } //Nombre del estudiante
+    var newName by remember { mutableStateOf(viewModel.students[selectedStudent]) } //Nombre del estudiante
 
     AlertDialog(
         title = { Text("Editar Estudiante") } ,
         onDismissRequest = onCloseEditStudent,
         text = {
             Column { TextField(
-                value = editedStudentName,
-                onValueChange = {editedStudentName = it},
+                value = newName,
+                onValueChange = {newName = it},
                 label = { Text( "Nuevo nombre del estudiante" ) }
             )
             }
         },
         confirmButton = {
-                       Button( onClick = { onStudentEdit(editedStudentName) ; viewModel.confirmEditStudent(editedStudentName) } ) { Text("Confirmar") }
+                       Button( onClick = {
+                           if (newName.isNotBlank() && newName.length <= 10){
+                               viewModel.editStudent(selectedStudent, newName)
+                           }
+                           onCloseEditStudent()
+                       } ) { Text("Confirmar") }
         },
         dismissButton = {
                         Button(onClick = onCloseEditStudent){ Text("Cerrar") }

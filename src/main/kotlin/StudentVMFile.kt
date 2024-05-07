@@ -114,12 +114,8 @@ class StudentVMFile(
         _showEditStudent.value = show
     }
 
-    override fun confirmEditStudent(editedName:String){
+    override fun editStudent(selectedStudent:Int, newName:String) {
 
-        if (editingStudentIndex != -1 && editingStudentIndex < _students.size){
-            _students[editingStudentIndex] = editedName
-            editingStudentIndex = -1
-        }
-
+        _students[selectedStudent] = newName
     }
 }
