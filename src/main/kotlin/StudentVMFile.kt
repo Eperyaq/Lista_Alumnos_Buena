@@ -30,6 +30,14 @@ class StudentVMFile(
     private val _selectedIndex = mutableStateOf(-1) // -1 significa que no hay selección
     override val selectedIndex: State<Int> = _selectedIndex
 
+    private val _showEditStudent = mutableStateOf(false)
+    override val showEditStudent: State<Boolean> = _showEditStudent
+
+    private val _editStudent = mutableStateOf("")
+    override val editStudent: State<String> = _editStudent
+
+    private var editingStudentIndex = -1
+
     override fun addStudent() {
         if (_newStudent.value.isNotBlank()) {
             _students.add(_newStudent.value.trim())
@@ -100,5 +108,14 @@ class StudentVMFile(
 
     override fun showInfoMessage(show: Boolean) {
         _showInfoMessage.value = show
+    }
+
+    override fun showEditStudent(show: Boolean) {
+        _showEditStudent.value = show
+    }
+
+    override fun editStudent(selectedStudent:Int, newName:String) {
+
+        _students[selectedStudent] = newName
     }
 }
