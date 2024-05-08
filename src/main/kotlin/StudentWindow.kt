@@ -22,7 +22,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import java.awt.Toolkit
 import java.io.File
+import androidx.compose.foundation.combinedClickable
+import java.awt.Button
 
+/*
+El clicable doble en la lazy list para que te llame al editar estudiante esta rarete
+ */
 @Composable
 fun StudentWindow(
     title: String,
@@ -87,6 +92,11 @@ fun StudentScreen(
     val infoMessage by viewModel.infoMessage
     val showInfoMessage by viewModel.showInfoMessage
 
+    val showEditStudent by viewModel.showEditStudent
+
+    val editStudent by viewModel.editStudent
+
+
     val showScrollStudentListImage = remember {
         derivedStateOf { viewModel.shouldShowScrollStudentListImage() }
     }
@@ -122,6 +132,7 @@ fun StudentScreen(
                     selectedIndex = selectedIndex,
                     focusRequester = studentListFocusRequester,
                     onStudentSelected = { index -> viewModel.studentSelected(index) },
+                    onEditStudent = { viewModel.showEditStudent(true)},
                     onIconDeleteStudentClick = { index -> viewModel.removeStudent(index) },
                     onButtonClearStudentsClick = { viewModel.clearStudents() }
                 )
@@ -146,6 +157,16 @@ fun StudentScreen(
                 viewModel.showInfoMessage(false)
                 newStudentFocusRequester.requestFocus()
             }
+        )
+    }
+
+    if (showEditStudent) {
+
+        EditStudent(
+            onCloseEditStudent = { viewModel.showEditStudent(false) },
+            editStudent = editStudent,
+            onStudentEdit = { name -> viewModel.newStudentChange(name)},
+            viewModel = viewModel
         )
     }
 
@@ -225,13 +246,14 @@ fun AddStudentButton(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun StudentList(
     studentsState: List<String>,
     selectedIndex: Int,
     focusRequester: FocusRequester,
     onStudentSelected: (Int) -> Unit,
+    onEditStudent: (Int) -> Unit,
     onIconDeleteStudentClick: (Int) -> Unit,
     onButtonClearStudentsClick: () -> Unit,
 ) {
@@ -273,6 +295,7 @@ fun StudentList(
                     modifier = Modifier
                         .fillMaxSize()
                         .clickable { onStudentSelected(index) }
+                        .combinedClickable(onDoubleClick = { onEditStudent(index) } ){} //rarete, preguntar a diego
                         .background(if (index == selectedIndex) colorSelected else colorUnselected)
                         .padding(horizontal = 5.dp)
                 ) {
@@ -385,6 +408,36 @@ fun InfoMessage(message: String, onCloseInfoMessage: () -> Unit) {
             Text(message)
         }
     }
+}
+
+
+@Composable
+fun EditStudent(onCloseEditStudent: () -> Unit,
+                editStudent: String,
+                onStudentEdit: (String) -> Unit,
+                viewModel: IStudentViewModel
+){
+    var editedStudentName by remember { mutableStateOf(editStudent) } //Nombre del estudiante
+
+    AlertDialog(
+        title = { Text("Editar Estudiante") } ,
+        onDismissRequest = onCloseEditStudent,
+        text = {
+            Column { TextField(
+                value = editedStudentName,
+                onValueChange = {editedStudentName = it},
+                label = { Text( "Nuevo nombre del estudiante" ) }
+            )
+            }
+        },
+        confirmButton = {
+                       Button( onClick = { onStudentEdit(editedStudentName) ; viewModel.confirmEditStudent(editedStudentName) } ) { Text("Confirmar") }
+        },
+        dismissButton = {
+                        Button(onClick = onCloseEditStudent){ Text("Cerrar") }
+        },
+
+    )
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
