@@ -38,6 +38,9 @@ class StudentVMFile(
 
     private var editingStudentIndex = -1
 
+    /**
+     * Añade un estudiante a la lista
+     */
     override fun addStudent() {
         if (_newStudent.value.isNotBlank()) {
             _students.add(_newStudent.value.trim())
@@ -45,12 +48,19 @@ class StudentVMFile(
         }
     }
 
+    /**
+     * Borra un alumno de la lista basandose en el indice
+     * @param index Indice en el que estes posicionado
+     */
     override fun removeStudent(index: Int) {
         if (index in _students.indices) {
             _students.removeAt(index)
         }
     }
 
+    /**
+     * Carga los estudiantes del fichero
+     */
     override fun loadStudents() {
         val loadedStudents = fileManagement.leer(studentsFile)
         if (loadedStudents != null) {
@@ -60,6 +70,9 @@ class StudentVMFile(
         }
     }
 
+    /**
+     * Guarda un estudiante
+     */
     override fun saveStudents() {
         var error = ""
         val newStudentsFile = fileManagement.crearFic(studentsFile.absolutePath)
@@ -80,22 +93,38 @@ class StudentVMFile(
         }
     }
 
+    /**
+     * Limpia todos los estudiantes
+     */
     override fun clearStudents() {
         _students.clear()
     }
 
+    /**
+     * Muestra el scroll dependiendo del numero de estudiantes que haya en la lista
+     */
     override fun shouldShowScrollStudentListImage() = _students.size > MAXNUMSTUDENTSVISIBLE
 
+    /**
+     * Le cambia el nombre a un estudiante indicandole el nuevo
+     * @param name Nombre al que se le va a cambiar
+     */
     override fun newStudentChange(name: String) {
         if (name.length <= MAXCHARACTERS) {
             _newStudent.value = name
         }
     }
 
+    /**
+     * Selecciona un estudiante
+     */
     override fun studentSelected(index: Int) {
         _selectedIndex.value = index
     }
 
+    /**
+     * Cambia el valor de un mensaje
+     */
     private fun updateInfoMessage(message: String) {
         _infoMessage.value = message
         _showInfoMessage.value = true
@@ -106,14 +135,27 @@ class StudentVMFile(
         }
     }
 
+    /**
+     * Muestra el mensaje guardado
+     */
     override fun showInfoMessage(show: Boolean) {
         _showInfoMessage.value = show
     }
 
+    /**
+     * Muestra el editor del estudiante
+     */
     override fun showEditStudent(show: Boolean) {
         _showEditStudent.value = show
     }
 
+    override fun editStudent(index: Int, name: String) {
+        _students[index] = name
+    }
+
+    /**
+     * Confirma y guarda el estudiante guardado
+     */
     override fun confirmEditStudent(editedName:String){
 
         if (editingStudentIndex != -1 && editingStudentIndex < _students.size){
