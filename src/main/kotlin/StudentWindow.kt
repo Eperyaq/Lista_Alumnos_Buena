@@ -23,6 +23,9 @@ import androidx.compose.ui.window.*
 import java.awt.Toolkit
 import java.io.File
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.unit.sp
 import java.awt.Button
 
 /*
@@ -35,6 +38,7 @@ fun StudentWindow(
     windowState: WindowState,
     resizable: Boolean,
     onCloseMainWindow: () -> Unit,
+    studentViewModel: IStudentViewModel
 ) {
     Window(
         onCloseRequest = onCloseMainWindow,
@@ -43,10 +47,6 @@ fun StudentWindow(
         resizable = resizable,
         state = windowState
     ) {
-
-        val fileManagement = FileManagement()
-        val studentsFile = File("studentList.txt")
-        val studentViewModel = StudentVMFile(fileManagement, studentsFile)
 
         MaterialTheme {
             Surface(
@@ -58,6 +58,9 @@ fun StudentWindow(
         }
     }
 }
+
+
+
 
 @Composable
 fun GetWindowState(

@@ -1,25 +1,23 @@
+import java.sql.Connection
 import java.sql.SQLException
 
-class StudentRepository {
+class StudentRepository: IStudentRepo{
 
     /**
      * Realiza una sentencia SELECT para sacar todos los estudiantes de la DB
      */
-    fun selectAllStudents(): MutableList<DataBase.Estudiante>{
+    override fun getAllStudents(): MutableList<String>{
 
         val conexion = DataBase.connectDB()
         val query = "SELECT * FROM STUDENTS"
-        val listaEstudiante = mutableListOf<DataBase.Estudiante>()
+        val listaEstudiante = mutableListOf<String>()
 
         try {
             val statement = conexion?.createStatement() //Sirve para crear una query
             val resultado = statement?.executeQuery(query) //Esto te va a ejecutar la query y va a preparar el resultado
 
             while (resultado?.next() == true){
-
-                val idStudent = resultado.getInt("id")//Saca el id y lo mete en la tabla
-                val nameStudent = resultado.getString("name") //Este saca el nombre y lo mete en la tabla
-                listaEstudiante.add(DataBase.Estudiante(nameStudent, idStudent))
+                listaEstudiante.add(resultado.getString("name"))
             }
             resultado?.close()
             statement?.close()
@@ -37,23 +35,38 @@ class StudentRepository {
      * @param id ID nuevo que va a ser introducido en la tabla
      * @param name Nombre nuevo que va a ser introducido en la tabla
      */
-    fun updateStudents(id: Int, name:String){
+    override fun updateStudents(students: List<String>): Result<Unit> {
+
 
         val conexion = DataBase.connectDB()
-        val query = ("UPDATE STUDENTS SET ID = ?, NAME = ?")
+        var ps: java.sql.PreparedStatement? = null
+        val sqlDelete = "DELETE FROM students"
+        val sqlInsert = "INSERT INTO students (name) VALUES (?)"
 
-        try {
-            val statement = conexion?.prepareStatement(query)//realizamos la conexion
+        return try {
+            conexion?.autoCommit = false
 
-            statement?.setInt(1, id)//le introducimos los valores
-            statement?.setString(2, name)
+            val stmt = conexion?.createStatement()
+            stmt?.execute(sqlDelete)
+            stmt?.close()
+            ps = conexion?.prepareStatement(sqlInsert)
 
-            statement?.executeUpdate()//le decimos que se ejecute
-            statement?.close() // y que cierre
+            for (student in students) {
+                ps?.setString(1, student)
+                ps?.executeUpdate()
+            }
+
+            conexion?.commit()
+            Result.success(Unit)
+
         } catch (e: SQLException) {
-            e.printStackTrace()
+            conexion?.rollback()
+            Result.failure(e)
+
         } finally {
-            DataBase.closeDB(conexion)
+            ps?.close()
+            conexion?.autoCommit = true
+            conexion?.close()
         }
     }
 
